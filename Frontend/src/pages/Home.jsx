@@ -1,5 +1,5 @@
 import 'remixicon/fonts/remixicon.css'
-import React, { useRef, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
@@ -8,10 +8,16 @@ import VehiclePanel from '../Components/VehiclePanel'
 import ConfirmRide from '../Components/ConfirmRide'
 import LookingForDriver from '../Components/LookingForDriver'
 import WaitingForDriver from '../Components/WaitingForDriver'
+import { useFindTrip } from '../hooks/locationHooks'
+import { AddressAutofill } from '@mapbox/search-js-react';
+import { myContext } from '../context/MyContextComponent'
+import { socketContext } from '../context/SocketProvider'
+
 const Home = () => {
     const {
         register,
         handleSubmit,
+        reset,
         formState: { errors }
     } = useForm()
 
@@ -28,11 +34,50 @@ const Home = () => {
     const [vehicleFound, setVehicleFound] = useState(false)
     const [waitingForDriver, setWaitingForDriver] = useState(false)
 
+    const { setFare, setPickupAndDestination, user } = useContext(myContext)
+    const mutation = useFindTrip()
+    const { setMessage, resiveMessage, socket } = useContext(socketContext)
+
+    // function updateLocation() {
+    //     if (navigator.geolocation)
+    //         navigator.geolocation.getCurrentPosition((position) =>
+
+    //             socket.emit("update-captain-location", {
+    //                 captainId: user?._id,
+    //                 location: {
+    //                     ltd: position.coords.latitude,
+    //                     lng: position.coords.longitude,
+    //                 },
+    //             })
+
+    //         );
+
+    // }
+
+
+
+    useEffect(() => {
+        if (!user) return;
+        // const interval = setInterval(updateLocation, 2000);
+        // console.log(user)
+        setMessage("join", { userType: "user", userId: user?._id });
+        // return () => clearInterval(interval);
+    }, [user])
 
     const onSubmit = (data) => {
 
-        console.log('Form data:', data)
-        // reset()
+        // console.log('Form data:', data)
+        setPickupAndDestination(data)
+
+        mutation.mutate(data, {
+            onSuccess: (data) => {
+                setFare(data?.data?.data)
+                setIsLocationPannelOpen(false)
+                setVehiclePanel(true)
+
+            }
+        })
+        reset()
     }
 
     useGSAP(() => {
@@ -136,6 +181,7 @@ const Home = () => {
 
     }, [waitingForDriver])
 
+
     return (
         <div className='h-screen relative overflow-hidden '>
             <img className='w-16 absolute left-5 top-5' src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png" alt="" />
@@ -150,57 +196,68 @@ const Home = () => {
                     <h4 className='text-2xl font-semibold'>Find a trip</h4>
                     <form className='relative py-3' onSubmit={handleSubmit(onSubmit)}>
                         <div className="line absolute h-16 w-1 top-[38%] -translate-y-1/2 left-5 bg-gray-700 rounded-full"></div>
-                        <input
-                            {...register('pickup', {
-                                required: 'Pickup location is required',
-                                minLength: {
-                                    value: 3,
-                                    message: 'Pickup location must be at least 3 characters'
-                                }
-                            })}
+                        <AddressAutofill
+                            accessToken='pk.eyJ1IjoiaGVtYW50MDgyOSIsImEiOiJjbWY4MnNpOGwwMjZiMmtxeTl4ZGZlejM1In0.AmtMQpWCkmyFJM1SZegpGQ'
+                        >
+                            <input
+                                autoComplete="address-line1"
+                                {...register('pickup', {
+                                    required: 'Pickup location is required',
+                                    minLength: {
+                                        value: 3,
+                                        message: 'Pickup location must be at least 3 characters'
+                                    }
+                                })}
 
-                            className='bg-[#eee] px-12 py-2 text-lg rounded-lg w-full'
-                            type="text"
-                            placeholder='Add a pick-up location'
-                        />
-                        {errors.pickup && (
-                            <span className="text-sm text-red-500 mt-1 block">{errors.pickup.message}</span>
-                        )}
-                        <input
-                            {...register('destination', {
-                                required: 'Destination is required',
-                                minLength: {
-                                    value: 3,
-                                    message: 'Destination must be at least 3 characters'
-                                }
-                            })}
+                                className='bg-[#eee] px-12 py-2 text-lg rounded-lg w-full'
+                                type="text"
+                                placeholder='Add a pick-up location'
+
+                            />
+                        </ AddressAutofill >
+
+                        <AddressAutofill
+                            accessToken='pk.eyJ1IjoiaGVtYW50MDgyOSIsImEiOiJjbWY4MnNpOGwwMjZiMmtxeTl4ZGZlejM1In0.AmtMQpWCkmyFJM1SZegpGQ'
+                        >
+                            <input
+                                autoComplete="address-line1"
+                                {...register('destination', {
+                                    required: 'Destination is required',
+                                    minLength: {
+                                        value: 3,
+                                        message: 'Destination must be at least 3 characters'
+                                    }
+                                })}
 
 
-                            className='bg-[#eee] px-12 py-2 text-lg rounded-lg w-full  mt-3'
-                            type="text"
-                            placeholder='Enter your destination'
-                        />
-                        {errors.destination && (
-                            <span className="text-sm text-red-500 mt-1 block">{errors.destination.message}</span>
-                        )}
+                                className='bg-[#eee] px-12 py-2 text-lg rounded-lg w-full  mt-3'
+                                type="text"
+                                placeholder='Enter your destination'
+                            />
+                        </AddressAutofill>
+
                         <button
                             type='submit'
                             className='bg-black text-white px-4 py-2 rounded-lg mt-4 w-full'>
                             Find Trip
                         </button>
+
                     </form>
 
 
                 </div>
+
+
                 <div ref={pannelClose} className='w-full  bg-white p-3'>
                     <LocationSearchPannel setIsLocationPannelOpen={setIsLocationPannelOpen} setVehiclePanel={setVehiclePanel} />
                 </div>
 
             </div>
-            <div ref={vehiclePanelRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-10 pt-12'>
+            <div ref={vehiclePanelRef} className='fixed w-full z-10 bottom-0 translate-y-full  bg-white  px-3 py-10 pt-12'>
                 <VehiclePanel setConfirmRidePanel={setConfirmRidePanel} setVehiclePanel={setVehiclePanel} />
 
             </div>
+
             <div ref={confirmRidePanelRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-6 pt-12'>
                 <ConfirmRide
 

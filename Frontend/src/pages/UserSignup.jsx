@@ -1,7 +1,7 @@
 import React from 'react'
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
-import { useUserSignup } from '../hooks/authHook.hooks';
+import { useUserSignup } from '../hooks/authHook';
 
 const UserSignup = () => {
   const {
@@ -14,15 +14,15 @@ const UserSignup = () => {
   const mutation = useUserSignup()
 
   const onSubmit = async (data) => {
-  
-    try {
-      const response = await mutation.mutateAsync(data)
-      
 
+    try {
+      const response = await mutation.mutate(data)
+
+      console.log(mutation)
       localStorage.setItem("token", response?.data?.token)
 
       reset()
-      // navigate("/Home")
+      navigate("/Home")
     } catch (error) {
       console.log("Error", error)
     }
@@ -207,17 +207,18 @@ const UserSignup = () => {
 
         {/* create error */}
         <div>
-          
-          {mutation.isPending ?
+
+          {mutation.mutate.isPending ?
             <div>Pending...</div> :
             <>
-              {mutation.isError ? (
-                <div className='text-red-600'> {mutation.error.response.data.message || "Login failed"}
+              {mutation.mutate.isError ? (
+
+                < div className='text-red-600'> {mutation.mutate.error.response.data.message || "Login failed"}
                   {/* {reset()} */}
                 </div>
               ) : null}
 
-              {mutation.isSuccess ? <div className='text-green-600 font-semibold'>Login successfully</div> : null}
+              {mutation.mutate.isSuccess ? <div className='text-green-600 font-semibold'>Login successfully</div> : null}
 
 
             </>
@@ -225,7 +226,7 @@ const UserSignup = () => {
         </div>
       </div>
 
-    </div>
+    </div >
   )
 }
 

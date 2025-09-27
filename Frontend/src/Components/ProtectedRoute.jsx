@@ -1,11 +1,13 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom';
 import instance from '../utils/axios/axios';
+import { myContext } from '../context/MyContextComponent';
 const ProtectedRoute = ({ children }) => {
     const navigate = useNavigate()
     const token = localStorage.getItem("token") || null
     const [loading, setLoading] = useState(true);
+    const { setUser } = useContext(myContext)
     useEffect(() => {
 
         if (!token) {
@@ -18,6 +20,7 @@ const ProtectedRoute = ({ children }) => {
                 }
             })
                 .then((res) => {
+                    setUser(res?.data?.data)
                     setLoading(false)
                 })
                 .catch((err) => {

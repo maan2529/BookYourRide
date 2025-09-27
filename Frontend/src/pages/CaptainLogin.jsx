@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
-import { useCaptainLogin, useCaptainSignup } from '../hooks/authHook.hooks';
+import { useCaptainLogin, useCaptainSignup } from '../hooks/authHook';
 
 const Captainlogin = () => {
   const {
@@ -20,8 +20,6 @@ const Captainlogin = () => {
       localStorage.setItem('token', response.token)
       navigate('/captain-home')
     }
-
-    
   };
   return (
     <div className='h-screen flex flex-col justify-between py-4 px-6 

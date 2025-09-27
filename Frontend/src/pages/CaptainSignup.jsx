@@ -3,7 +3,7 @@
 import React from 'react'
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
-import { useCaptainSignup } from '../hooks/authHook.hooks';
+import { useCaptainSignup } from '../hooks/authHook';
 
 const Captainsignup = () => {
     const {
@@ -14,23 +14,18 @@ const Captainsignup = () => {
     } = useForm();
     const mutation = useCaptainSignup()
     const navigate = useNavigate()
-    const onSubmit = async (data) => {
-        console.log("Form Submitted:", data);
-        try {
-            const response = await mutation.mutateAsync(data);
-            if (response.token) {
-                localStorage.setItem('token', response.token)
-
-                reset()
-                navigate('/captain-home')
-
+    const onSubmit = (data) => {
+        mutation.mutate(data, {
+            onSuccess: (data) => {
+                console.log(data);
+                // navigate('/captain-home')
+            },
+            onError: (error) => {
+                console.error(error);
             }
-        } catch (error) {
-            console.error(error)
-        }
-
-        // signup API call here
+        });
     };
+
 
     return (
         <div className='h-screen flex flex-col justify-between py-1 px-6 

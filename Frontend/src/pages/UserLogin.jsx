@@ -1,7 +1,8 @@
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
-import { useUserLogin } from '../hooks/authHook.hooks.js'
-
+import { useUserLogin } from '../hooks/authHook'
+import { myContext } from '../context/MyContextComponent'
+import { useContext } from 'react'
 const UserLogin = () => {
   const {
     register,
@@ -11,20 +12,24 @@ const UserLogin = () => {
   } = useForm();
   const navigate = useNavigate()
   const mutation = useUserLogin()
+  const { user, setUser } = useContext(myContext)
 
-  const onSubmit = async (data) => {
-    try {
-      const result = await mutation.mutateAsync(data)
-      // console.log(result)
-      localStorage.setItem('token', result.token)
-      reset();
-      navigate('/home')
+  const onSubmit = (data) => {
+    mutation.mutate(data, {
+      onSuccess: (res) => {
+        console.log(res);
+        localStorage.setItem('token', res?.token);
+        setUser(res?.userReturn); // set it when you signup 
 
-    } catch (error) {
-      console.error("Login Error:", error);
-    }
-
+        reset();
+        navigate('/home');
+      },
+      onError: (error) => {
+        console.error("Login Error:", error);
+      }
+    });
   };
+
 
 
   return (
@@ -156,7 +161,7 @@ const UserLogin = () => {
             <>
               {mutation.isError ? (
                 <div className='text-red-600'>Error is: {mutation.error?.response?.data?.message || "Login failed"}
-            
+
                 </div>
               ) : null}
 

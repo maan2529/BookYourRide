@@ -1,6 +1,8 @@
 import React from 'react'
 import 'remixicon/fonts/remixicon.css'
 const LocationSearchPannel = ({ setVehiclePanel, setIsLocationPannelOpen }) => {
+
+    
     return (
         <div>
             <div onClick={() => {

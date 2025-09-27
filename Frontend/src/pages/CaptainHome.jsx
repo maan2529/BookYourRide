@@ -1,10 +1,14 @@
-import React, { useRef, useState } from 'react'
+import React, { useContext, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import CaptainDetails from '../Components/CaptainDetails'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import RidePopUp from '../Components/RidePopUp'
 import ConfirmRidePopUp from './ConfirmRidePopUp'
+import { myContext } from '../context/MyContextComponent'
+import useCaptainDetail from "../hooks/captainHook"
+import { useEffect } from 'react'
+import { socketContext } from '../context/SocketProvider'
 const CaptainHome = () => {
 
     const confirmRidePopupPanelRef = useRef(null)
@@ -12,6 +16,35 @@ const CaptainHome = () => {
 
     const [ridePopupPanel, setRidePopupPanel] = useState(true)
     const [confirmRidePopupPanel, setConfirmRidePopupPanel] = useState(false)
+    const { setCaptain, captain } = useContext(myContext)
+    const mutation = useCaptainDetail()
+    const { setMessage, resiveMessage, updateCaptainLocation, socket } = useContext(socketContext)
+
+    function updateLocation() {
+        if (navigator.geolocation)
+            navigator.geolocation.getCurrentPosition((position) =>
+                // console.log(position)
+                socket.emit("update-captain-location", {
+                    captainId: captain?._id,
+                    location: {
+                        ltd: position.coords.latitude,
+                        lng: position.coords.longitude,
+                    },
+                })
+
+            );
+
+    }
+
+
+    useEffect(() => {
+        if (!captain) return;
+        const interval = setInterval(updateLocation, 10000);
+
+        setMessage("join", { userType: "captain", userId: captain?._id });
+
+        return () => clearInterval(interval);
+    }, [captain]);
 
 
     useGSAP(function () {
@@ -37,6 +70,19 @@ const CaptainHome = () => {
             })
         }
     }, [confirmRidePopupPanel])
+
+
+    if (mutation.isPending) {
+        return <div>Loading</div>
+    }
+    if (mutation.error) {
+        return console.error(mutation.error.message)
+    }
+    if (mutation.data) {
+        setCaptain(mutation?.data?.data?.data)
+        console.log(mutation.data.data.data)
+    }
+
     return (
         <div className='h-screen'>
             <div className='fixed p-6 top-0 flex items-center justify-between w-screen'>

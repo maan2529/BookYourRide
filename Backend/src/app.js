@@ -9,11 +9,12 @@ const cors = require('cors')
 const mapRouter = require('./routes/map.route.js')
 const rideRouter = require('./routes/ride.routes.js')
 
-app.use(cors());
-// app.use(cors({
-//     origin: "http://localhost:5173",
-//     credentials: true,
-// }));
+// app.use(cors());
+app.use(cors({
+    // origin: "http://localhost:5173",
+    origin: "https://25l1cphr-5173.inc1.devtunnels.ms",
+    credentials: true,
+}));
 
 
 app.use(express.json())

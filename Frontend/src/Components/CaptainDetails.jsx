@@ -1,15 +1,18 @@
+import { useContext } from "react"
+import { myContext } from "../context/MyContextComponent"
 
 
 const CaptainDetails = () => {
 
-   
 
+    const { captain } = useContext(myContext)
+    // console.log(ride)
     return (
         <div>
             <div className='flex items-center justify-between'>
                 <div className='flex items-center justify-start gap-3'>
                     <img className='h-10 w-10 rounded-full object-cover' src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRdlMd7stpWUCmjpfRjUsQ72xSWikidbgaI1w&s" alt="" />
-                    <h4 className='text-lg font-medium capitalize'>Hemant Singh</h4>
+                    <h4 className='text-lg font-medium capitalize'>{captain?.fullname?.firstname + " " + captain?.fullname?.lastname || "Captain Name"}</h4>
                 </div>
                 <div>
                     <h4 className='text-xl font-semibold'>₹295.20</h4>

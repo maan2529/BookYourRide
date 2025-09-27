@@ -10,7 +10,7 @@ function generateOTP(digits = 6) {
     return otp;
 }
 
-const getFare = async function (distance) {
+const getFare = function (time, distance) {
 
 
     console.log("time and distance -> ", time, distance);
@@ -37,6 +37,7 @@ const getFare = async function (distance) {
         car: baseFair.car + (distance / 1000) * perKmRate.car + (time / 60) * perMinRate.car,
     }
 
+    console.log(fair)
     return fair;
 }
 
@@ -44,14 +45,14 @@ const getFare = async function (distance) {
 
 const createRideService = async (userID, pickup, destination, vehicleType) => {
     console.log("userID, pickup, destination, vehicleType", userID, pickup, destination, vehicleType)
-    
+
     if (!userID || !pickup || !destination || !vehicleType) {
         throw new Error("All fields are required");
     }
     const { duration, distance } = await getTimeAndDistance(pickup, destination)
-    const fair = await getFare(distance)
+    const fare = getFare(duration, distance)
 
-    const otp = generateOTP(6)
+    const otp = generateOTP(6) 
 
 
     const ride = await Ride.create({
@@ -71,6 +72,8 @@ const createRideService = async (userID, pickup, destination, vehicleType) => {
 }
 
 module.exports = {
-    createRideService
+    createRideService,
+    getFare
+
 }
 

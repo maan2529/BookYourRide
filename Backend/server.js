@@ -1,9 +1,11 @@
 const app = require('./src/app')
 const http = require('http')
 const connectToDB = require('./src/db/db.js')
-const server = http.createServer(app)
+const { socketServer } = require('./src/socket/socketServer.js')
 
+const httpServer = http.createServer(app)
+socketServer(httpServer)
 connectToDB()
-server.listen(process.env.PORT || 8001, () => {
+httpServer.listen(process.env.PORT || 8000, '0.0.0.0', () => {
     console.log("server listening on port 8000")
 })

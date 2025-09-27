@@ -47,7 +47,10 @@ const rideSchema = new mongoose.Schema({
     otp: {
         type: String,
         required: true,
-        length: 6
+        minlength: 6,
+        maxlength: 6,
+        match: /^\d{6}$/,   
+        select: false
     }
 
 })
