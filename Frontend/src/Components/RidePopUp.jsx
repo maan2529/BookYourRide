@@ -1,4 +1,32 @@
+import { useContext, useEffect } from "react"
+import instance from "../utils/axios/axios"
+import { myContext } from "../context/MyContextComponent"
+import { socketContext } from "../context/SocketProvider"
+import { useConfirmRide } from '../hooks/locationHooks'
+
 const RidePopUp = (props) => {
+
+    const { rideDetails } = useContext(socketContext)
+
+    const mutation = useConfirmRide()
+
+    async function acceptRide() {
+
+
+
+        props.setConfirmRidePopupPanel(true)
+        // Use rideDetails from socket context instead of ride from myContext
+        mutation.mutate(rideDetails?._id)
+
+
+
+        // props.confirmRide()
+
+    }
+
+
+
+
     return (
         <div>
             <h5 className='p-1 text-center w-[93%] absolute top-0' onClick={() => {
@@ -8,9 +36,9 @@ const RidePopUp = (props) => {
             <div className='flex items-center justify-between p-3 bg-yellow-400 rounded-lg mt-4'>
                 <div className='flex items-center gap-3 '>
                     <img className='h-12 rounded-full object-cover w-12' src="https://i.pinimg.com/236x/af/26/28/af26280b0ca305be47df0b799ed1b12b.jpg" alt="" />
-                    <h2 className='text-lg font-medium'>Arina</h2>
+                    <h2 className='text-lg font-medium'>{props?.rideDetails && props?.rideDetails?.user?.firstname || props?.rideDetails?.user?.lastname}</h2>
                 </div>
-                <h5 className='text-lg font-semibold'>2.2 KM</h5>
+                <h5 className='text-lg font-semibold'>{props?.rideDetails && (props?.rideDetails?.distance).toFixed(1) + " "}KM</h5>
             </div>
             <div className='flex gap-2 justify-between flex-col items-center'>
                 <div className='w-full mt-5'>
@@ -18,30 +46,34 @@ const RidePopUp = (props) => {
                         <i className="ri-map-pin-user-fill"></i>
                         <div>
                             <h3 className='text-lg font-medium'>562/11-A</h3>
-                            <p className='text-sm -mt-1 text-gray-600'>Varanasi</p>
+                            <p className='text-sm -mt-1 text-gray-600 uppercase'>{props?.rideDetails && (props?.rideDetails?.pickup)}</p>
                         </div>
                     </div>
                     <div className='flex items-center gap-5 p-3 border-b-2'>
                         <i className="text-lg ri-map-pin-2-fill"></i>
                         <div>
                             <h3 className='text-lg font-medium'>562/11-A</h3>
-                            <p className='text-sm -mt-1 text-gray-600'>Mirzapur</p>
+                            <p className='text-sm -mt-1 text-gray-600 uppercase'>{props?.rideDetails && (props?.rideDetails?.destination)}</p>
                         </div>
                     </div>
                     <div className='flex items-center gap-5 p-3'>
                         <i className="ri-currency-line"></i>
                         <div>
-                            <h3 className='text-lg font-medium'>₹222 </h3>
+                            <h3 className='text-lg font-medium'>{props?.rideDetails && Math.round(props?.rideDetails?.fare)} </h3>
                             <p className='text-sm -mt-1 text-gray-600'>Cash Cash</p>
                         </div>
                     </div>
                 </div>
                 <div className='mt-5 w-full '>
-                    <button onClick={() => {
-                        props.setConfirmRidePopupPanel(true)
-                        
+                    <button
+                        onClick={acceptRide}
+                        disabled={!rideDetails || !rideDetails._id}
+                        className={`bg-green-600 w-full text-white font-semibold p-2 px-10 rounded-lg btn ${(!rideDetails || !rideDetails._id) ? 'opacity-50 cursor-not-allowed' : ''
+                            }`}
+                    >
+                        Accept
+                    </button>
 
-                    }} className=' bg-green-600 w-full text-white font-semibold p-2 px-10 rounded-lg'>Accept</button>
 
                     <button onClick={() => {
                         props.setRidePopupPanel(false)
@@ -51,7 +83,7 @@ const RidePopUp = (props) => {
 
                 </div>
             </div>
-        </div>
+        </div >
     )
 }
 

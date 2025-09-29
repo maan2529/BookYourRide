@@ -94,7 +94,7 @@ const loginCaptain = async function (req, res) {
 };
 
 const getCaptain = async function (req, res) {
-    const captain = req.user;
+    const captain = req.captain;
 
     res.status(201).json({
         message: "captain data",

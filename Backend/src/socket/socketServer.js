@@ -57,12 +57,15 @@ function socketServer(httpServer) {
 
 }
 
-function sendMessageToSocketId(socketId, message) {
+function sendMessageToSocketId(socketId, userObj) {
     if (io) {
-        io.to(socketId).emit("message", message)
+        console.log("userObj", { userObj })
+        console.log("socketId", { socketId })
+
+        io.to(socketId).emit(userObj.event, userObj.data)
     } else {
         console.log("socket is not initialize");
     }
 }
 
-module.exports = { socketServer, io };
+module.exports = { socketServer, io, sendMessageToSocketId };

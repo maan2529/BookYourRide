@@ -28,13 +28,15 @@ const Home = () => {
     const vehicleFoundRef = useRef(null)
     const waitingForDriverRef = useRef(null)
 
+    const [vehicleDetail, setVehicleDetail] = useState(null)
+
     const [isLocationPannelOpen, setIsLocationPannelOpen] = useState(false)
     const [vehiclePanel, setVehiclePanel] = useState(false)
     const [confirmRidePanel, setConfirmRidePanel] = useState(false)
     const [vehicleFound, setVehicleFound] = useState(false)
     const [waitingForDriver, setWaitingForDriver] = useState(false)
 
-    const { setFare, setPickupAndDestination, user } = useContext(myContext)
+    const { setFare, setPickupAndDestination, user, confirmRide, setConfirmRide } = useContext(myContext)
     const mutation = useFindTrip()
     const { setMessage, resiveMessage, socket } = useContext(socketContext)
 
@@ -64,16 +66,17 @@ const Home = () => {
         // return () => clearInterval(interval);
     }, [user])
 
-    const onSubmit = (data) => {
+    const onSubmit = (inputData) => {
 
         // console.log('Form data:', data)
-        setPickupAndDestination(data)
+        setPickupAndDestination(inputData)
 
-        mutation.mutate(data, {
+        mutation.mutate(inputData, {
             onSuccess: (data) => {
                 setFare(data?.data?.data)
                 setIsLocationPannelOpen(false)
                 setVehiclePanel(true)
+                setConfirmRide({ fare: data?.data?.data, location: inputData })
 
             }
         })
@@ -247,27 +250,32 @@ const Home = () => {
 
                 </div>
 
-
+                {/* search pannel */}
                 <div ref={pannelClose} className='w-full  bg-white p-3'>
                     <LocationSearchPannel setIsLocationPannelOpen={setIsLocationPannelOpen} setVehiclePanel={setVehiclePanel} />
                 </div>
 
             </div>
             <div ref={vehiclePanelRef} className='fixed w-full z-10 bottom-0 translate-y-full  bg-white  px-3 py-10 pt-12'>
-                <VehiclePanel setConfirmRidePanel={setConfirmRidePanel} setVehiclePanel={setVehiclePanel} />
+                <VehiclePanel setConfirmRidePanel={setConfirmRidePanel} setVehiclePanel={setVehiclePanel}
+                    setVehicleDetail={setVehicleDetail} />
+
 
             </div>
 
             <div ref={confirmRidePanelRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-6 pt-12'>
                 <ConfirmRide
-
+                    vehicleDetail={vehicleDetail}
                     setConfirmRidePanel={setConfirmRidePanel}
                     setVehicleFound={setVehicleFound} />
             </div>
 
             <div ref={vehicleFoundRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-6 pt-12'>
                 <LookingForDriver
-                    setVehicleFound={setVehicleFound} />
+                    setVehicleFound={setVehicleFound}
+                    setWaitingForDriver={setWaitingForDriver}
+                />
+
             </div>
 
             <div ref={waitingForDriverRef} className='fixed w-full  z-10 bottom-0  bg-white px-3 py-6 pt-12'>

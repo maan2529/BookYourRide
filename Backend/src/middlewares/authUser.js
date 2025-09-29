@@ -27,7 +27,7 @@ const authUser = async function (req, res, next) {
         req.user = user
         return next()
     } catch (error) {
-        throw new Error("auth error "+error)
+        throw new Error("auth error " + error)
     }
 }
 
@@ -48,9 +48,10 @@ const authCaptain = async function (req, res, next) {
 
     try {
         const decodedCaptain = jwt.verify(token, process.env.JWT_SECRET)
-
-        const user = await Captain.findOne({ _id: decodedCaptain._id });
-        req.user = user
+        console.log({ decodedCaptain })
+        const captain = await Captain.findById(decodedCaptain._id);
+        console.log({ captain })
+        req.captain = captain
         return next()
     } catch (error) {
         throw new error(error)

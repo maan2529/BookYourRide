@@ -1,5 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
 import instance from "../utils/axios/axios"
+import { useContext } from "react";
+import { myContext } from "../context/MyContextComponent";
+import { socketContext } from "../context/SocketProvider";
 function useFindTrip(data) {
     function rideFare(data) {
         const response = instance.post('/ride/get-fair', data)
@@ -19,15 +22,18 @@ function useFindTrip(data) {
     return mutation
 }
 function useCreateRide(data) {
-    function createRide(data) {
-        const response = instance.post('/ride/create', data)
-        console.log(response)
-        return response
+    const { setRide } = useContext(myContext)
+    async function createRide(data) {
+        const response = await instance.post('/ride/create', data);
+        console.log(response.data);
+        return response;
     }
     const mutation = useMutation({
         mutationFn: createRide,
         onSuccess: (data) => {
             console.log(data)
+            setRide(data?.data?.data)
+            // setFare(data?.data?.data)
         },
         onError: (err) => {
             throw Error(err)
@@ -36,4 +42,26 @@ function useCreateRide(data) {
 
     return mutation
 }
-export { useFindTrip, useCreateRide }
+function useConfirmRide() {
+    const { setConfirmRideDetails } = useContext(socketContext)
+    async function confirmRide(rideId) {
+        const response = await instance.post('/ride/confirm', { rideId });
+        console.log(response.data);
+        return response;
+    }
+    const mutation = useMutation({
+        mutationFn: confirmRide,
+        onSuccess: (data) => {
+            console.log(data)
+            setConfirmRideDetails(data?.data)
+            // setRide(data?.data?.data)
+            // setFare(data?.data?.data)
+        },
+        onError: (err) => {
+            throw Error(err)
+        }
+    })
+
+    return mutation
+}
+export { useFindTrip, useCreateRide, useConfirmRide }

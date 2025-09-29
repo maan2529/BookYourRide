@@ -44,18 +44,16 @@ const getFare = function (time, distance) {
 
 
 const createRideService = async (userID, pickup, destination, vehicleType) => {
-    console.log("userID, pickup, destination, vehicleType", userID, pickup, destination, vehicleType)
-
     if (!userID || !pickup || !destination || !vehicleType) {
         throw new Error("All fields are required");
     }
-    const { duration, distance } = await getTimeAndDistance(pickup, destination)
-    const fare = getFare(duration, distance)
 
-    const otp = generateOTP(6) 
+    const { duration, distance } = await getTimeAndDistance(pickup, destination);
+    const fare = getFare(duration, distance);
+    const otp = generateOTP(6);
 
-
-    const ride = await Ride.create({
+    // Create the ride
+    const newRide = await Ride.create({
         user: userID,
         pickup,
         destination,
@@ -63,17 +61,37 @@ const createRideService = async (userID, pickup, destination, vehicleType) => {
         duration,
         fare: fare[vehicleType],
         otp
-    })
+    });
 
+
+    const populatedRide = await Ride.findById(newRide._id).populate('user');
+    populatedRide.otp = "";
+    console.log(populatedRide)
+    return populatedRide;
+};
+
+const confirmPassengerRide = async function ({ rideId, captain }) {
+    console.log(rideId, captain)
+    if (!rideId || !captain) {
+        throw Error("passenger and captain id is require");
+    }
+
+    const ride = await Ride.findByIdAndUpdate(rideId, {
+        status: "accepted",
+        captain: captain._id,
+
+    }, { new: true }).populate('user').populate('captain').select("+otp")
+
+    if (!ride) {
+        throw Error("ride is not found ");
+    }
 
     return ride;
-
-
 }
 
 module.exports = {
     createRideService,
-    getFare
-
+    getFare,
+    confirmPassengerRide
 }
 

@@ -6,7 +6,7 @@ import gsap from 'gsap'
 import RidePopUp from '../Components/RidePopUp'
 import ConfirmRidePopUp from './ConfirmRidePopUp'
 import { myContext } from '../context/MyContextComponent'
-import useCaptainDetail from "../hooks/captainHook"
+import { useCaptainDetail } from "../hooks/captainHook"
 import { useEffect } from 'react'
 import { socketContext } from '../context/SocketProvider'
 const CaptainHome = () => {
@@ -14,11 +14,11 @@ const CaptainHome = () => {
     const confirmRidePopupPanelRef = useRef(null)
     const ridePopupPanelRef = useRef(null)
 
-    const [ridePopupPanel, setRidePopupPanel] = useState(true)
+    const [ridePopupPanel, setRidePopupPanel] = useState(false)
     const [confirmRidePopupPanel, setConfirmRidePopupPanel] = useState(false)
-    const { setCaptain, captain } = useContext(myContext)
+    const { setCaptain, captain, ride } = useContext(myContext)
     const mutation = useCaptainDetail()
-    const { setMessage, resiveMessage, updateCaptainLocation, socket } = useContext(socketContext)
+    const { setMessage, resiveMessage, updateCaptainLocation, socket, rideDetails } = useContext(socketContext)
 
     function updateLocation() {
         if (navigator.geolocation)
@@ -36,6 +36,19 @@ const CaptainHome = () => {
 
     }
 
+    async function confirmRide() {
+        console.log("confirmRide")
+
+        // try {
+        //     if (ride) {
+        //         console.log(ride)
+        //         await instance.post('/ride/confirm', ride?._id)
+        //     }
+        // } catch (error) {
+        //     throw Error(error)
+        // }
+    }
+
 
     useEffect(() => {
         if (!captain) return;
@@ -45,6 +58,12 @@ const CaptainHome = () => {
 
         return () => clearInterval(interval);
     }, [captain]);
+
+    useEffect(() => {  // to open captain popup page
+        if (!rideDetails) return
+        console.log(rideDetails)
+        setRidePopupPanel(true)
+    }, [rideDetails])
 
 
     useGSAP(function () {
@@ -100,15 +119,19 @@ const CaptainHome = () => {
             </div>
             <div ref={ridePopupPanelRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-10 pt-12'>
                 <RidePopUp
-
+                    rideDetails={rideDetails}
                     setRidePopupPanel={setRidePopupPanel}
                     setConfirmRidePopupPanel={setConfirmRidePopupPanel}
+                    confirmRide={confirmRide}
 
                 />
             </div>
             <div ref={confirmRidePopupPanelRef} className='fixed w-full h-screen z-10 bottom-0 translate-y-full bg-white px-3 py-10 pt-12'>
                 <ConfirmRidePopUp
-                    setConfirmRidePopupPanel={setConfirmRidePopupPanel} setRidePopupPanel={setRidePopupPanel} />
+                    rideDetails={rideDetails}
+                    setConfirmRidePopupPanel={setConfirmRidePopupPanel} setRidePopupPanel={setRidePopupPanel}
+                    
+                />
             </div>
         </div>
     )

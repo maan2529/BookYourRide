@@ -2,29 +2,28 @@ import React, { useContext } from 'react'
 import { myContext } from '../context/MyContextComponent'
 import { useCreateRide } from '../hooks/locationHooks'
 
-const VehiclePanel = ({ setVehiclePanel, setConfirmRidePanel }) => {
+const VehiclePanel = ({ setVehiclePanel, setConfirmRidePanel, setVehicleDetail }) => {
 
     const { fare, pickupAndDestination, setRide } = useContext(myContext)
     const mutation = useCreateRide()
     const handleVahicleChoose = (vehicleType) => {
         // console.log(pickupAndDestination)
         const { pickup, destination } = pickupAndDestination;
-        const rideDetails = {
+        setVehicleDetail({ // set vahicle detail 
             vehicleType,
             pickup,
             destination,
-        }
+        })
+
+        // const rideDetails = {
+
+        // }
+
         setConfirmRidePanel(true)
 
-        mutation.mutate(rideDetails, {
-            onSuccess: (data) => {
-                setRide(data?.data?.data)
-                // console.log(data.data.data)
-            },
-            onError: (err) => {
-                console.error(err)
-            }
-        })
+
+        // vehicle type pe click kr ke caption ka window khul raha hai , isko change karna hai
+
     }
 
     return (
@@ -40,7 +39,7 @@ const VehiclePanel = ({ setVehiclePanel, setConfirmRidePanel }) => {
                     <h5 className='font-medium text-sm'>3 mins away </h5>
                     <p className='font-normal text-xs text-gray-600'>Affordable motorcycle rides</p>
                 </div>
-                <h2 className='text-lg font-semibold'>₹{Math.ceil(fare.bike)}</h2>
+                <h2 className='text-lg font-semibold'>₹{Math.ceil(fare?.bike)}</h2>
             </div>
             <div onClick={() => handleVahicleChoose("auto")}
 
@@ -51,7 +50,7 @@ const VehiclePanel = ({ setVehiclePanel, setConfirmRidePanel }) => {
                     <h5 className='font-medium text-sm'>3 mins away </h5>
                     <p className='font-normal text-xs text-gray-600'>Affordable Auto rides</p>
                 </div>
-                <h2 className='text-lg font-semibold'>₹{Math.ceil(fare.auto)}</h2>
+                <h2 className='text-lg font-semibold'>₹{Math.ceil(fare?.auto)}</h2>
             </div>
             <div onClick={() => handleVahicleChoose("car")} className='flex border-2 active:border-black  mb-2 rounded-xl w-full p-3  items-center justify-between'>
                 <img className='h-10' src="https://swyft.pl/wp-content/uploads/2023/05/how-many-people-can-a-uberx-take.jpg" alt="" />
@@ -60,7 +59,7 @@ const VehiclePanel = ({ setVehiclePanel, setConfirmRidePanel }) => {
                     <h5 className='font-medium text-sm'>2 mins away </h5>
                     <p className='font-normal text-xs text-gray-600'>Affordable, compact rides</p>
                 </div>
-                <h2 className='text-lg font-semibold'>₹{Math.ceil((fare.car))}</h2>
+                <h2 className='text-lg font-semibold'>₹{Math.ceil((fare?.car))}</h2>
             </div>
         </div>
     )

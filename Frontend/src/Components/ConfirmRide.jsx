@@ -1,8 +1,29 @@
-import React, { useContext } from 'react'
+import React, { useContext, useEffect } from 'react'
 import { myContext } from '../context/MyContextComponent'
+import { useCreateRide } from '../hooks/locationHooks'
 
 const ConfirmRide = (props) => {
-    const { ride } = useContext(myContext)
+    // const { ride } = useContext(myContext)
+    const { confirmRide } = useContext(myContext)
+    const mutation = useCreateRide()
+    const { setFare, fare, pickupAndDestination, setRide, ride } = useContext(myContext)
+
+    function handleRideBooking() {
+        props.setVehicleFound(true)
+        props.setConfirmRidePanel(false)
+
+        mutation.mutate(props.vehicleDetail, {
+            onSuccess: (data) => {
+                setRide(data?.data?.data)
+                console.log(data.data.data)
+            },
+            onError: (err) => {
+                console.error(err)
+            }
+        })
+    }
+
+
     return (
         <div>
             <h5 className='p-1 text-center w-[93%] absolute top-0' onClick={() => {
@@ -20,29 +41,29 @@ const ConfirmRide = (props) => {
                         <i className="ri-map-pin-user-fill"></i>
                         <div>
                             <h3 className='text-lg font-medium'>562/11-A</h3>
-                            <p className='text-sm -mt-1 text-gray-600'>{ride?.pickup}</p>
+                            <p className='text-sm -mt-1 text-gray-600'>{confirmRide?.location?.pickup}</p>
                         </div>
                     </div>
                     <div className='flex items-center gap-5 p-3 border-b-2'>
                         <i className="text-lg ri-map-pin-2-fill"></i>
                         <div>
                             <h3 className='text-lg font-medium'>562/11-A</h3>
-                            <p className='text-sm -mt-1 text-gray-600'>{ride?.destination}</p>
+                            <p className='text-sm -mt-1 text-gray-600'>{confirmRide?.location?.destination}</p>
                         </div>
                     </div>
                     <div className='flex items-center gap-5 p-3'>
                         <i className="ri-currency-line"></i>
                         <div>
-                            <h3 className='text-lg font-medium'>₹{Math.ceil(ride?.fare)}</h3>
+                            <h3 className='text-lg font-medium'>₹{" " + Math.ceil(confirmRide?.fare[props.vehicleDetail?.vehicleType])}</h3>
                             <p className='text-sm -mt-1 text-gray-600'>Cash Cash</p>
                         </div>
                     </div>
                 </div>
                 <button onClick={() => {
-                    props.setVehicleFound(true)
-                    props.setConfirmRidePanel(false)
+                    // props.setVehicleFound(true)
+                    // props.setConfirmRidePanel(false)
 
-
+                    handleRideBooking()
                 }} className='w-full mt-5 bg-green-600 text-white font-semibold p-2 rounded-lg'>Confirm</button>
             </div>
         </div>
