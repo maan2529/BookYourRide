@@ -1,17 +1,18 @@
-import React, { useRef, useState } from 'react'
+import React, { useContext, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 // import FinishRide from '../components/FinishRide'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import FinishRide from '../Components/FinishRide'
+import { myContext } from '../context/MyContextComponent'
 // import LiveTracking from '../components/LiveTracking'
 
 const CaptainRiding = () => {
 
   const [finishRidePanel, setFinishRidePanel] = useState(false)
   const finishRidePanelRef = useRef(null)
-
-
+  const { ride } = useContext(myContext)
+  
 
   useGSAP(function () {
     if (finishRidePanel) {

@@ -60,8 +60,9 @@ const SocketProvider = ({ children }) => {
     const otpMatchFun = () => {
         socket.off('ride-start');
         socket.on('ride-start', (data) => {
+            console.log('Socket received ride-start event:', data);
             setOTPMatch(data)
-            console.log(data)
+            console.log('otpMatch state updated:', data)
         })
     }
 
@@ -70,21 +71,14 @@ const SocketProvider = ({ children }) => {
     useEffect(() => {
         getRide();
         confirmRide();
-        
+        otpMatchFun();
 
         return () => {
             socket.off('new-ride');
+            socket.off('ride-confirm');
+            socket.off('ride-start');
         };
     }, []);
-
-    // useEffect(() => {
-
-    //     otpMatchFun()
-
-    //     return () => {
-    //         socket.off('ride-start');
-    //     };
-    // }, []);
 
 
     return (

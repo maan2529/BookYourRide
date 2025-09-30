@@ -1,6 +1,6 @@
 const express = require('express');
 const { expressValidator, body } = require('express-validator');
-const { createRide, getFairAmount, confirmRide, rideStart, rideCancel } = require('../controllers/ride.controllers');
+const { createRide, getFairAmount, confirmRide, rideStart, rideCancel, finishRide } = require('../controllers/ride.controllers');
 const { authUser, authCaptain } = require('../middlewares/authUser');
 const rideRouter = express.Router();
 
@@ -41,17 +41,21 @@ rideRouter.post('/get-fair', [
 
 rideRouter.post('/confirm', authCaptain, [
     body('rideId').isMongoId().withMessage("invalid mongo id"),
-    confirmRide
-])
+
+], confirmRide)
 rideRouter.post('/start-ride', authCaptain, [
     body('otp').isString().withMessage("OTP require"),
     body('rideId').isMongoId().withMessage("invalid mongo id"),
-    rideStart
-])
+
+], rideStart)
 rideRouter.post('/cancel-ride', authCaptain, [
     body('otp').isString().withMessage("OTP require"),
     body('rideId').isMongoId().withMessage("invalid mongo id"),
-    rideCancel
-])
+
+], rideCancel)
+rideRouter.post('/finish-ride', authCaptain, [
+    body('rideId').isMongoId().withMessage("invalid mongo id"),
+
+], finishRide)
 
 module.exports = rideRouter;

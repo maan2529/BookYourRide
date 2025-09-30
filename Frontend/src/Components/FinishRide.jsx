@@ -1,17 +1,32 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
+import { socketContext } from '../context/SocketProvider'
+import { useFinishRide } from '../hooks/locationHooks'
 
 
 const FinishRide = (props) => {
-
+    const { rideDetails, otpMatch } = useContext(socketContext)
+    const mitation = useFinishRide()
+    // const { otpMatch } = useContext(socketContext)
     const navigate = useNavigate()
+    if (rideDetails) {
+        console.log(rideDetails)
+    }
 
     async function endRide() {
         console.log("Ride end")
+        mitation.mutate(rideDetails?._id, {
+            onSuccess: (data) => {
+                // last call
+                navigate('/captain-home')
 
-        navigate('/captain-home')
+            },
+            onError: (err) => {
+                throw new Error(err);
+            }
+        })
 
     }
 
@@ -24,7 +39,7 @@ const FinishRide = (props) => {
             <div className='flex items-center justify-between p-4 border-2 border-yellow-400 rounded-lg mt-4'>
                 <div className='flex items-center gap-3 '>
                     <img className='h-12 rounded-full object-cover w-12' src="https://i.pinimg.com/236x/af/26/28/af26280b0ca305be47df0b799ed1b12b.jpg" alt="" />
-                    <h2 className='text-lg font-medium'>Arina</h2>
+                    <h2 className='text-lg font-medium'>{rideDetails?.user?.firstname}</h2>
                 </div>
                 <h5 className='text-lg font-semibold'>2.2 KM</h5>
             </div>
@@ -34,20 +49,20 @@ const FinishRide = (props) => {
                         <i className="ri-map-pin-user-fill"></i>
                         <div>
                             <h3 className='text-lg font-medium'>562/11-A</h3>
-                            <p className='text-sm -mt-1 text-gray-600'>Varanasi</p>
+                            <p className='text-sm -mt-1 text-gray-600'>{rideDetails?.pickup}</p>
                         </div>
                     </div>
                     <div className='flex items-center gap-5 p-3 border-b-2'>
                         <i className="text-lg ri-map-pin-2-fill"></i>
                         <div>
                             <h3 className='text-lg font-medium'>562/11-A</h3>
-                            <p className='text-sm -mt-1 text-gray-600'>Mirzapur</p>
+                            <p className='text-sm -mt-1 text-gray-600'>{rideDetails?.destination}</p>
                         </div>
                     </div>
                     <div className='flex items-center gap-5 p-3'>
                         <i className="ri-currency-line"></i>
                         <div>
-                            <h3 className='text-lg font-medium'>₹222 </h3>
+                            <h3 className='text-lg font-medium'>₹{Math.round(rideDetails?.fare)} </h3>
                             <p className='text-sm -mt-1 text-gray-600'>Cash Cash</p>
                         </div>
                     </div>
@@ -58,7 +73,6 @@ const FinishRide = (props) => {
                     <button
                         onClick={endRide}
                         className='w-full mt-5 flex  text-lg justify-center bg-green-600 text-white font-semibold p-3 rounded-lg'>Finish Ride</button>
-
 
                 </div>
             </div>

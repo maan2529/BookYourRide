@@ -64,4 +64,25 @@ function useConfirmRide() {
 
     return mutation
 }
-export { useFindTrip, useCreateRide, useConfirmRide }
+
+function useFinishRide() {
+    const { setConfirmRideDetails } = useContext(socketContext)
+    async function finishRide(rideId) {
+        const response = await instance.post('/ride/finish-ride', { rideId });
+        console.log(response.data);
+        return response;
+    }
+    const mutation = useMutation({
+        mutationFn: finishRide,
+        onSuccess: (data) => {
+            console.log(data)
+
+        },
+        onError: (err) => {
+            throw Error(err)
+        }
+    })
+
+    return mutation
+}
+export { useFindTrip, useCreateRide, useConfirmRide, useFinishRide }

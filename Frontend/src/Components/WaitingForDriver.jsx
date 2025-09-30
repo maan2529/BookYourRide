@@ -7,10 +7,12 @@ const WaitingForDriver = (props) => {
     const navigate = useNavigate()
     
     useEffect(() => {
+        console.log('WaitingForDriver - otpMatch changed:', otpMatch);
         if (otpMatch?.status === "ongoing") {
+            console.log('Navigating to /riding');
             navigate('/riding');
         }
-    }, [otpMatch]);
+    }, [otpMatch, navigate]);
     return (
         <div>
             <h5 className='p-1 text-center w-[93%] absolute top-0' onClick={() => {

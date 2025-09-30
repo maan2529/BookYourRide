@@ -34,10 +34,6 @@ const ConfirmRidePopUp = (props) => {
 
     })
 
-
-
-
-
   }
   return (
     <div>

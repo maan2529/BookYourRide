@@ -200,6 +200,47 @@ const rideCancel = async (req, res) => {
         return res.status(500).json({ message: "Internal server error" });
     }
 };
+const finishRide = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { rideId } = req.body;
+    if (!rideId) {
+        return res.status(400).json({ message: "rideId is required" });
+    }
+
+    try {
+        const updatedRideDetail = await Ride.findByIdAndUpdate(
+            rideId,
+            { status: "completed" },
+            { new: true }
+        ).populate('user');
+
+        if (!updatedRideDetail) {
+            return res.status(404).json({ message: "Ride not found" });
+        }
+
+        if (updatedRideDetail?.user?.socketId) {
+            sendMessageToSocketId(updatedRideDetail.user.socketId, {
+                event: 'ride-complete',
+                data: updatedRideDetail
+            });
+        }
+
+        return res.status(200).json({
+            message: "Ride Completed",
+            success: true,
+            ride: updatedRideDetail
+        });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};
+
 
 
 module.exports = {
@@ -208,4 +249,5 @@ module.exports = {
     confirmRide,
     rideStart,
     rideCancel,
+    finishRide
 }
